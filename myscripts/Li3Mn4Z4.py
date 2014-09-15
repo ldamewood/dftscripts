@@ -8,7 +8,7 @@ import itertools
 import matplotlib.pyplot as plt
 
 from pymatgen.io.abinitio.workflows import Workflow
-from pymatgen.io.abinitio.tasks import TaskManager, ScfTask, NscfTask
+from pymatgen.io.abinitio.tasks import TaskManager, ScfTask, NscfTask, RelaxTask
 from pymatgen.io.abinitio.flows import AbinitFlow
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
@@ -69,16 +69,16 @@ ksampling = dict(
         [.0,.5,.0],
         [.0,.0,.5],
     ],
-    ngkpt = [16,16,16],
+    ngkpt = [6,6,6],
 )
 
 electrons = dict(
-    ecut   = Energy(40.,'Ha'),
+    ecut   = Energy(30.,'Ha'),
     occopt = 3,
     nsppol = 2,
     tsmear = Energy(1.e-3,'eV'),
-    nband = 16,
-    tolvrs = 1.e-10,
+    nband = 48,
+    tolvrs = 0,
 )
 
 def valence(Z):
@@ -133,36 +133,59 @@ def bands_input(inp):
     ))
     return inp
 
+Z = 'Si'
+phase = 'beta'
 flow = AbinitFlow(manager = manager, workdir = workdir)
-tasks = 9*[{}]
-for i,(Z,phase) in enumerate(itertools.product(['N','P','Si'],['alpha','beta','gamma'])):
-    structure_opt = HalfHeusler(['Li','Mn',Z], phase, acell_opt[Z][phase])
-    structure_hm  = HalfHeusler(['Li','Mn',Z], phase, acell_hm[Z][phase] )
-    
-    inp_opt = get_input(structure_opt)
-    inp_hm  = get_input(structure_hm)
-    
-    work_Z = Workflow()
-    scf_opt_task = work_Z.register(inp_opt, manager = manager, task_class=ScfTask)
-    scf_hm_task  = work_Z.register(inp_hm , manager = manager, task_class=ScfTask)
-    flow.register_work(work_Z)
-    tasks[i] = {
-        "opt": {
-            "input" : inp_opt,
-            "task": scf_opt_task,
-        },
-        "hm" : {
-            "input" : inp_hm,
-            "task": scf_hm_task,
-        }
-    }
-
-for i,(Z,phase) in enumerate(itertools.product(['N','P','Si'],['alpha','beta','gamma'])):
-    work_Nscf = Workflow()
-    work_Nscf.register(dos_input(tasks[i]["opt"]["input"]),   deps = {tasks[i]["opt"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
-    work_Nscf.register(bands_input(tasks[i]["opt"]["input"]), deps = {tasks[i]["opt"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
-    work_Nscf.register(dos_input(tasks[i]["hm"]["input"]),   deps = {tasks[i]["hm"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
-    work_Nscf.register(bands_input(tasks[i]["hm"]["input"]), deps = {tasks[i]["hm"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
-    flow.register_work(work_Nscf)
-        
+work = Workflow()
+for acell in [5.3, 5.4, 5.5, 5.6, 5.7, 5.8]:
+    structure = HalfHeusler(['Li','Mn',Z], phase, acell)
+    structure.make_supercell([[-1,1,1],[1,-1,1],[1,1,-1]])
+    structure.remove_sites([0])
+    inp = get_input(structure)
+    inp.set_variables(
+        **dict(
+            ionmov = 7,
+            ntime = 80,
+            optcell = 0,
+            tolmxf = 5e-05,
+            toldff = 5e-06,
+            amu = '*12',
+        )
+    )
+    work.register(inp, manager = manager, task_class=RelaxTask)
+flow.register_work(work)
 flow = flow.allocate()
+
+#flow = AbinitFlow(manager = manager, workdir = workdir)
+#tasks = 9*[{}]
+#for i,(Z,phase) in enumerate(itertools.product(['N','P','Si'],['alpha','beta','gamma'])):
+#    structure_opt = HalfHeusler(['Li','Mn',Z], phase, acell_opt[Z][phase])
+#    structure_hm  = HalfHeusler(['Li','Mn',Z], phase, acell_hm[Z][phase] )
+#    
+#    inp_opt = get_input(structure_opt)
+#    inp_hm  = get_input(structure_hm)
+#    
+#    work_Z = Workflow()
+#    scf_opt_task = work_Z.register(inp_opt, manager = manager, task_class=ScfTask)
+#    scf_hm_task  = work_Z.register(inp_hm , manager = manager, task_class=ScfTask)
+#    flow.register_work(work_Z)
+#    tasks[i] = {
+#        "opt": {
+#            "input" : inp_opt,
+#            "task": scf_opt_task,
+#        },
+#        "hm" : {
+#            "input" : inp_hm,
+#            "task": scf_hm_task,
+#        }
+#    }
+#
+#for i,(Z,phase) in enumerate(itertools.product(['N','P','Si'],['alpha','beta','gamma'])):
+#    work_Nscf = Workflow()
+#    work_Nscf.register(dos_input(tasks[i]["opt"]["input"]),   deps = {tasks[i]["opt"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
+#    work_Nscf.register(bands_input(tasks[i]["opt"]["input"]), deps = {tasks[i]["opt"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
+#    work_Nscf.register(dos_input(tasks[i]["hm"]["input"]),   deps = {tasks[i]["hm"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
+#    work_Nscf.register(bands_input(tasks[i]["hm"]["input"]), deps = {tasks[i]["hm"]["task"]: "DEN"}, manager = manager, task_class=NscfTask)
+#    flow.register_work(work_Nscf)
+#        
+#flow = flow.allocate()

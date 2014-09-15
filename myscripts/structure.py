@@ -3,10 +3,6 @@
 import os
 import re
 import numpy
-import urllib2
-
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import IStructure
 
 from abipy.core.structure import Structure, Lattice
 
@@ -63,14 +59,14 @@ def HalfHeusler(elements, phase, a):
     lattice = Lattice(float(a) * numpy.array(fcc_lattice))
     return Structure(lattice, elements, positions[phase]).get_sorted_structure()
     
-def Cu2Sb(elements, a, c):
+def Cu2Sb(elements, a, c, z1 = 1./3, z2 = 1./4):
     positions = [
         wyckoff(129, '2a', coordinate = 0),
         wyckoff(129, '2a', coordinate = 1),
-        wyckoff(129, '2c', coordinate = 0, z = 1./3),
-        wyckoff(129, '2c', coordinate = 1, z = 1./3),
-        wyckoff(129, '2c', coordinate = 0, z = 2./3),
-        wyckoff(129, '2c', coordinate = 1, z = 2./3),
+        wyckoff(129, '2c', coordinate = 0, z = z1),
+        wyckoff(129, '2c', coordinate = 1, z = z1),
+        wyckoff(129, '2c', coordinate = 0, z = z2),
+        wyckoff(129, '2c', coordinate = 1, z = z2),
     ]
     if hasattr(a,'to') and callable(getattr(a,'to')):
         a = a.to('ang')
