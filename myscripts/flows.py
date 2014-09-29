@@ -12,6 +12,40 @@ from .faketasks import get_qpts, get_irred_perts
 
 __all__ = ['PhononFlow']
 
+class GWFlow(AbinitFlow):
+    def __init__(self, workdir, manager, inp, pickle_protocol = -1, qmesh = (2,2,2), nband = 500):
+        super(GWFlow, self).__init__(workdir, manager, pickle_protocol)
+        self.set_workdir(workdir)
+        self.creation_date = time.asctime()
+        self.manager = manager.deepcopy()
+        self.inp = inp
+        self._qmesh = qmesh
+        self._nband = nband
+        self.nscf_tolwfr = 1.e-15
+        
+    def nscf_input(self, qpt):
+        inp = self.inp.deepcopy()
+        inp.set_variables(
+            kptopt = 3,
+            nqpt = 1,
+            qpt = qpt,
+            iscf = -2,
+            tolvrs = 0,
+            tolwfr = self.nscf_tolwfr,
+        )
+        return inp
+        
+    def screen_input(self, qpt):
+        inp = self.inp.deepcopy()
+        inp.set_variables(
+            optdriver = 3,
+            ecuteps = self.inp.get_variable('ecut'),
+            ecutwfk = self.inp.get_variable('ecut'),
+            nqptdm = 1,
+            qptdm = qpt,
+        )
+        return inp
+        
 class PhononFlow(AbinitFlow):
     def __init__(self, workdir, manager, inp, pickle_protocol = -1, ngqpt = (4,4,4), do_nscf = False):
         super(PhononFlow, self).__init__(workdir, manager, pickle_protocol)
@@ -24,7 +58,6 @@ class PhononFlow(AbinitFlow):
         
         self.nscf_tolwfr = 1.e-15
         self.ph_tolvrs = 1.e-12
-        
 
     @property
     def ngqpt(self):
