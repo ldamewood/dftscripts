@@ -34,7 +34,7 @@ def wyckoff(spgrp, site, x = 0., y = 0., z = 0., coordinate = 0):
 
 def ZincBlende(elements, a):
     positions = [
-        wyckoff(215,'4a'),
+        wyckoff(216,'4a'),
         wyckoff(216,'4c')
     ]
     if hasattr(a,'to') and callable(getattr(a,'to')):

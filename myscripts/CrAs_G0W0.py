@@ -69,5 +69,3 @@ def gw_flow(workdir):
     manager = abilab.TaskManager.from_user_config()
     flow = abilab.g0w0_flow(workdir, manager, inps[0], inps[1], inps[2], [inps[3]])
     return flow
-
-flow = gw_flow('/tmp/flows')
