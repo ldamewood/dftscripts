@@ -43,6 +43,40 @@ def make_input():
         else:
             spins.append([0.,0.,0.])
     inp.set_variables(spinat = spins)
+
+def make_gwinput():
+    inp = abilab.AbiInput(
+        pseudos = [
+            os.path.join(pseudo_dir, "Li.GGA_PBE-JTH-paw.xml"),
+            os.path.join(pseudo_dir, "Mn.GGA_PBE-JTH-paw.xml"),
+            os.path.join(pseudo_dir, "As.GGA_PBE-JTH-paw.xml")], 
+            ndtset = 4)
+    equation = ['Mn','Li','Li','Li','As','As']
+    structure = Cu2Sb(equation, 4.119, 6.5813382, z1 = 0.35428, z2 = 0.23058)
+    inp.set_structure(structure)
+    inp.set_kmesh(
+        shiftk = [
+            [.5,.5,.5],
+        ],
+        ngkpt = [15,15,11],
+    )
+    inp.set_variables(
+        ecut   = "1000 eV",
+        pawecutdg = "2000 eV",
+        occopt = 3,
+        nsppol = 2,
+        tsmear = "0.001 eV",
+        nband = 24,
+    )
+    spins = []
+    for element in structure:
+        if element.specie.symbol == 'Li':
+            spins.append([0.,0.,0.])
+        elif element.specie.symbol == 'Mn':
+            spins.append([0.,0.,7.])
+        else:
+            spins.append([0.,0.,0.])
+    inp.set_variables(spinat = spins)
     
     # Dataset 1 (SCF)
     inp[1].set_kmesh(shiftk = [[.5,.5,.5]],ngkpt = [15,15,11])
@@ -66,9 +100,7 @@ def make_input():
     return inp.split_datasets()
         
 def gw_flow(workdir):
-    inps = make_input();
+    inps = make_gwinput();
     manager = abilab.TaskManager.from_user_config()
     flow = abilab.g0w0_flow(workdir, manager, inps[0], inps[1], inps[2], [inps[3]])
     return flow
-
-flow = gw_flow('/tmp/flows')
