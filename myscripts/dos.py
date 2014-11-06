@@ -24,12 +24,4 @@ for element in run.structures[0].composition.elements:
 			col = '%s.%s.%s' % (element, orbital.lower(), 'up' if spin == Spin.up else 'dn')
 			dos[col] = run.complete_dos.get_element_spd_dos(element)[orbital].densities[spin]
 
-
-    #'As.p.up': run.complete_dos.get_element_spd_dos(Element('As'))['P'].densities[Spin.up],
-    #'As.p.dn': run.complete_dos.get_element_spd_dos(Element('As'))['P'].densities[Spin.down],
-    #'Mn.p.up': run.complete_dos.get_element_spd_dos(Element('Mn'))['P'].densities[Spin.up],
-    #'Mn.p.dn': run.complete_dos.get_element_spd_dos(Element('Mn'))['P'].densities[Spin.down],
-    #'Mn.d.up': run.complete_dos.get_element_spd_dos(Element('Mn'))['D'].densities[Spin.up],
-    #'Mn.d.dn': run.complete_dos.get_element_spd_dos(Element('Mn'))['D'].densities[Spin.down],
-
 print dos.to_csv(float_format = '%8.3e', index_label = 'energy')
