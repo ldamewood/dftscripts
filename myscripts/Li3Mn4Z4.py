@@ -43,7 +43,7 @@ acell_opt = {
 
 ksampling = KSampling(mode='monkhorst',kpts=((12,12,12),), kpt_shifts=((0.5,0.5,0.5),(0.5,0.0,0.0),(0.0,0.5,0.0),(0.0,0.0,0.5)))
 relax_ion = RelaxationMethod(ionmov = 3, optcell = 0)
-relax_ioncell = RelaxationMethod(ionmov = 3, optcell = 1, tolmxf = 5e-06)
+relax_ioncell = RelaxationMethod(ionmov = 2, optcell = 1)
 
 flows = []
 for (Z, i) in itertools.product(["P","N","Si"],range(4)):
