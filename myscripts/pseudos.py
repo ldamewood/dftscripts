@@ -17,6 +17,10 @@ nc_urlpath = 'ftp://ftp.abinit.org/pub/abinitio/Psps/GGA_FHI/'
 nc_filenamepattern = '%(Z)02d-%(symbol)s.GGA.fhi'
 nc_localpath = os.path.join(os.getenv("HOME"), ".abinit", "nc")
 
+def all_pseudos(method = 'paw'):
+    if method == 'paw':
+        return [os.path.join(paw_localpath, p) for p in os.listdir(paw_localpath) if os.path.isfile(os.path.join(paw_localpath, p))]
+
 def get_psp(element, method = 'paw'):
     
     def unique_order(x):

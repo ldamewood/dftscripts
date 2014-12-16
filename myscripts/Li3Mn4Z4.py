@@ -14,7 +14,7 @@ from pymatgen.io.abinitio.strategies import RelaxStrategy
 from pymatgen.io.abinitio.abiobjects import KSampling, RelaxationMethod, AbiStructure
 from pymatgen.core.units import Energy
 
-from myscripts.pseudos import get_psp
+from myscripts.pseudos import all_pseudos
 from myscripts.structure import HalfHeusler
 
 scratchdir = '/p/lscratchd/damewood'
@@ -42,11 +42,12 @@ acell_opt = {
 }
 
 ksampling = KSampling(mode='monkhorst',kpts=((12,12,12),), kpt_shifts=((0.5,0.5,0.5),(0.5,0.0,0.0),(0.0,0.5,0.0),(0.0,0.0,0.5)))
-relax_ion = RelaxationMethod(ionmov = 3, optcell = 0)
+relax_ion = RelaxationMethod(ionmov = 2, optcell = 0)
 relax_ioncell = RelaxationMethod(ionmov = 2, optcell = 1)
 
+pseudos = all_pseudos()
 flows = []
-for (Z, i) in itertools.product(["P","N","Si"],range(4)):
+for (Z, i) in itertools.product(['P','N','Si'],range(4)):
     x = 4 - i
     name = 'Li%dMn4%s4' % (x,Z)
     print(name)
@@ -54,14 +55,18 @@ for (Z, i) in itertools.product(["P","N","Si"],range(4)):
     for (phase) in ["alpha","beta","gamma"]:
         structure = HalfHeusler(['Li','Mn',Z], phase, acell_opt[Z][phase])
         structure.make_supercell([[-1,1,1],[1,-1,1],[1,1,-1]])
-        to_remove = i
-        while(to_remove>0):
-            # Li is always listed first
-            structure.remove(structure[0])
-            to_remove -= 1
-        ion_input = RelaxStrategy(AbiStructure(structure), get_psp(structure), ksampling,
+        structure.remove_sites(range(x))
+        structure.sort(key=lambda x: x.specie.Z)
+        spins = numpy.zeros([len(structure),3])
+        for i,atom in enumerate(structure):
+            if atom.specie.symbol == 'Li':
+                spins[i,2] = 1.
+            if atom.specie.symbol == 'Mn':
+                spins[i,2] = 3.
+        ion_input = RelaxStrategy(AbiStructure(structure), pseudos, ksampling,
             relax_ion, accuracy="high", smearing = "fermi_dirac:0.025 eV",
-            ecut = 40., pawecutdg = 80., chkprim = 0)
+            ecut = 40., pawecutdg = 80., chkprim = 0, tolmxf = 5.e-6,
+            spinat = spins)
         ioncell_input = ion_input.copy()
         ioncell_input.relax_algo = relax_ioncell
         work = RelaxWork(ion_input, ioncell_input, manager = manager)
@@ -76,3 +81,5 @@ def build_and_pickle_dump():
 def rapidfire():
     for flow in flows:
         flow.rapidfire()
+
+build_and_pickle_dump()
