@@ -41,7 +41,7 @@ acell_opt = {
          },
 }
 
-ksampling = KSampling(mode='monkhorst',kpts=((11,11,11),), kpt_shifts=((0.5,0.5,0.5),(0.5,0.0,0.0),(0.0,0.5,0.0),(0.0,0.0,0.5)))
+ksampling = KSampling(mode='monkhorst',kpts=((12,12,12),), kpt_shifts=((0.5,0.5,0.5),(0.5,0.0,0.0),(0.0,0.5,0.0),(0.0,0.0,0.5)))
 relax_ion = RelaxationMethod(ionmov = 3, optcell = 0)
 relax_ioncell = RelaxationMethod(ionmov = 3, optcell = 1, tolmxf = 5e-06)
 
@@ -56,16 +56,23 @@ for (Z, i) in itertools.product(["P","N","Si"],range(4)):
         structure.make_supercell([[-1,1,1],[1,-1,1],[1,1,-1]])
         to_remove = i
         while(to_remove>0):
-            for atom in structure:
-                if atom.specie.symbol == u'Li':
-                    structure.remove(atom)
-                    to_remove -= 1
+            # Li is always listed first
+            structure.remove(structure[0])
+            to_remove -= 1
         ion_input = RelaxStrategy(AbiStructure(structure), get_psp(structure), ksampling,
             relax_ion, accuracy="high", smearing = "fermi_dirac:0.025 eV",
-            ecut = Energy(40., "eV"), pawecutdg = Energy(80., "eV"))
+            ecut = 40., pawecutdg = 80., chkprim = 0)
         ioncell_input = ion_input.copy()
         ioncell_input.relax_algo = relax_ioncell
         work = RelaxWork(ion_input, ioncell_input, manager = manager)
         flow.register_work(work, workdir = phase)
     flow = flow.allocate()
     flows.append(flow)
+
+def build_and_pickle_dump():
+    for flow in flows:
+        flow.build_and_pickle_dump()
+
+def rapidfire():
+    for flow in flows:
+        flow.rapidfire()
