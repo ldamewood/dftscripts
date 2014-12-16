@@ -5,6 +5,7 @@ import urllib2
 
 from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure
+from collections import OrderedDict
 
 __all__ = [ 'get_psp' ]
 
@@ -18,11 +19,14 @@ nc_localpath = os.path.join(os.getenv("HOME"), ".abinit", "nc")
 
 def get_psp(element, method = 'paw'):
     
+    def unique_order(x):
+        return list(OrderedDict.fromkeys(x))
+    
     if isinstance(element, IStructure):
-        return list(set([get_psp(atom.specie, method) for atom in element]))
+        return list([get_psp(element) for element in unique_order(element.species)])
     
     if isinstance(element, list):
-        return list(set([get_psp(Element(atom), method) for atom in element]))
+        return list([get_psp(Element(atom), method) for atom in set(element)])
     
     if method == 'paw':
         dirpath = paw_localpath
