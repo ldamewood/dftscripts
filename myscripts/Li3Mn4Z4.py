@@ -49,7 +49,7 @@ pseudos = all_pseudos()
 flows = []
 for (Z, i) in itertools.product(['P','N','Si'],range(4)):
     x = 4 - i
-    name = u'Li%d Mn4 %s4' % (x,Z)
+    name = u'Li%dMn4%s4' % (x,Z)
     print(name)
     flow = Flow(manager = manager, workdir = os.path.join(workdir, name))
     for (phase) in ["alpha","beta","gamma"]:
@@ -57,7 +57,7 @@ for (Z, i) in itertools.product(['P','N','Si'],range(4)):
         structure.make_supercell([[-1,1,1],[1,-1,1],[1,1,-1]])
         structure.remove_sites(list(range(i)))
         structure.sort(key=lambda j: j.specie.Z)
-        assert name == structure.formula
+        assert name == structure.formula.replace(' ','')
         spins = numpy.zeros([len(structure),3])
         for j,atom in enumerate(structure):
             if atom.specie.symbol == 'Li':
