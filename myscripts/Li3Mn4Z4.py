@@ -77,7 +77,7 @@ acell_opt = {
          },
 }
 
-ksampling = KSampling(mode='monkhorst',kpts=((12,12,12),), kpt_shifts=((0.5,0.5,0.5),(0.5,0.0,0.0),(0.0,0.5,0.0),(0.0,0.0,0.5)))
+ksampling = KSampling(mode='monkhorst',kpts=((8,8,8),), kpt_shifts=((0.5,0.5,0.5),(0.5,0.0,0.0),(0.0,0.5,0.0),(0.0,0.0,0.5)))
 relax_ion = RelaxationMethod(ionmov = 2, optcell = 0)
 relax_ioncell = RelaxationMethod(ionmov = 2, optcell = 1)
 
