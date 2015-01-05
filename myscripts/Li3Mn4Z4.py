@@ -101,7 +101,7 @@ for (Z, i) in itertools.product(['P','N','Si'],range(1,4)):
                 spins[j,2] = 1.
             if atom.specie.symbol == 'Mn':
                 spins[j,2] = 3.
-        ion_input = RelaxStrategy(AbiStructure(structure), pseudos, ksampling,
+        ion_input = RelaxStrategy(structure, pseudos, ksampling,
             relax_ion, accuracy="high", smearing = "fermi_dirac:0.025 eV",
             ecut = 40., pawecutdg = 80., chkprim = 0, tolmxf = 5.e-6,
             spinat = spins, restartxf = -2, nband = 60, nstep = 100)
@@ -129,4 +129,5 @@ def get_status():
                 except TypeError:
                     pass
 
-#build_and_pickle_dump()
+build_and_pickle_dump()
+#a = Flow.pickle_load(flows[0].workdir)
