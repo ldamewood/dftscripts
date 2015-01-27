@@ -8,7 +8,7 @@ from pymatgen.io.abinitio.tasks import ScfTask, NscfTask, PhononTask, AnaddbTask
 from pymatgen.io.abinitio.strategies import AnaddbInput
 from pymatgen.io.abinitio import wrappers
 
-from .faketasks import get_qpts, get_irred_perts
+from .tasks.faketasks import get_qpts, get_irred_perts
 
 __all__ = ['PhononFlow']
 

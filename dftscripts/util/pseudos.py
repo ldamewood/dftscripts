@@ -7,8 +7,6 @@ from pymatgen.core.periodic_table import Element
 from pymatgen.core.structure import IStructure
 from collections import OrderedDict
 
-__all__ = [ 'get_psp' ]
-
 paw_urlpath = 'http://www.abinit.org/downloads/PAW2/JTH-TABLE/ATOMICDATA/'
 paw_filenamepattern = '%(symbol)s.GGA_PBE-JTH.xml'
 paw_localpath = os.path.join(os.getenv("HOME"), ".abinit", "paw")
