@@ -2,7 +2,7 @@ import os
 
 import sys
 
-from pymatgen.io.abinitio.workflows import Workflow
+from pymatgen.io.abinitio.works import Work
 from pymatgen.io.abinitio.tasks import TaskManager
 from pymatgen.io.abinitio.netcdf import NetcdfReader
 from pymatgen.io.abinitio.abiinspect import yaml_read_irred_perts
@@ -18,8 +18,8 @@ def _setup_faketask(name, manager = None, workdir = "."):
     tmp_dir = os.path.join(workdir, "__" + str(name) + "_run__")
     if manager is None:
         manager = TaskManager.from_user_config()
-    manager = manager.to_shell_manager(mpi_ncpus=1)
-    return Workflow(workdir=tmp_dir, manager=manager)
+    manager = manager.to_shell_manager()
+    return Work(workdir=tmp_dir, manager=manager)
 
 def get_memory(inp, manager = None, workdir="."):
 
@@ -57,7 +57,7 @@ def get_all_kpoints(inp, manager = None, workdir = "."):
     w.allocate()
     w.start(wait=True)
 
-    nc = NetcdfReader(fake_task.outdir.has_abiext('OUT'))
+    nc = NetcdfReader(fake_task.opath_from_ext('OUT'))
     kpts = nc.read_variable('kpt')[:].reshape((-1,3))
     mem = 0
     for line in fake_task.log_file.readlines():
@@ -74,7 +74,7 @@ def get_qpts(inp, ngqpt, manager = None, workdir = "."):
         ngkpt = ngqpt,
         shiftk = [0.,0.,0.],
         nshiftk = 1,
-        prtvol = -1,
+        prtvol = -2,
     )
 
     w = _setup_faketask('qpt', manager = manager, workdir = workdir)
@@ -82,9 +82,9 @@ def get_qpts(inp, ngqpt, manager = None, workdir = "."):
     fake_input.set_variables(**vars)
     fake_task = w.register(fake_input)
     w.allocate()
-    w.start(wait=True)
+    w.start()
 
-    nc = NetcdfReader(fake_task.outdir.has_abiext('OUT'))
+    nc = NetcdfReader(fake_task.opath_from_ext('OUT'))
     qpts = nc.read_variable('kpt')[:].reshape((-1,3))
     mem = 0
     for line in fake_task.log_file.readlines():

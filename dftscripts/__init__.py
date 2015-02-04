@@ -1,6 +1,6 @@
-all = [
+__all__ = [
     'flows',
-    'structures',
+    'structure',
     'tasks',
     'util',
     'vasp',

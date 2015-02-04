@@ -3,6 +3,7 @@
 from __future__ import print_function, division
 
 def main(filename = 'OSZICAR'):
+    filename = 'OSZICAR'
     with open(filename, 'r') as oszicar:
         lines = oszicar.readlines()
     

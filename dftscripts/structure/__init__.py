@@ -1,7 +1,6 @@
 import numpy
 
 __all__ = [
-    'structure_to_abivars',
     'cubic',
     'tetragonal',
 ]
