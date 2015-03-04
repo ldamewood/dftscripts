@@ -3,15 +3,17 @@ from __future__ import division, print_function
 
 import os
 import logging
-from abipy import abilab
+from abipy.htc.input import AbiInput
 from dftscripts.structure.cubic import HalfHeusler
+from dftscripts.tasks.faketasks import get_qpts
+from dftscripts.flows.phonon import auto_phonon_flow
 
 logging.basicConfig()
 
 pseudo_dir = os.path.expanduser("~/.abinit/paw")
 
 def make_input():
-    inp = abilab.AbiInput(
+    inp = AbiInput(
         pseudos = [
             os.path.join(pseudo_dir, "Be.GGA_PBE-JTH.xml"),
             os.path.join(pseudo_dir, "Mn.GGA_PBE-JTH.xml"),
@@ -46,7 +48,7 @@ def make_input():
     inp.set_vars(spinat = spins)
         
     return inp
-    
-from dftscripts.flows.phonon import auto_phonon_flow
-manager = abilab.TaskManager.from_user_config()
-flow = auto_phonon_flow('.', manager, make_input(), with_nscf = True)
+
+inp = make_input()
+qpts, mem = get_qpts(inp.deepcopy(), (4,4,4), workdir = '.')
+#flow = auto_phonon_flow('.', TaskManager.from_user_config(), make_input(), with_nscf = True)

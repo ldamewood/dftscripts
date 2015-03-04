@@ -1,9 +1,8 @@
-import numpy
+from .cubic import *
+from .tetragonal import *
+from .wyckoff import *
 
-__all__ = [
-    'cubic',
-    'tetragonal',
-]
+import numpy
 
 from pymatgen.core.units import ArrayWithUnit
 

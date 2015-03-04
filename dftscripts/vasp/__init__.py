@@ -1,6 +1,4 @@
-__all__ = [
-    'bands',
-    'density',
-    'dos',
-    'moment',
-]
+from .bands import *
+from .density import *
+from .dos import *
+from .moment import *

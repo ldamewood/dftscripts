@@ -1,1 +1,1 @@
-__all__ = ['faketasks']
+from .faketasks import *

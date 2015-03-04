@@ -1,8 +1,8 @@
 #
 
-from abipy.abilab import phonon_flow
+from pymatgen.io.abinitio.flows import phonon_flow
 
-from ..tasks.faketasks import get_qpts
+from dftscripts.tasks.faketasks import get_qpts
 
 __all__ = ['auto_phonon_flow']
 
