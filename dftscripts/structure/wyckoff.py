@@ -13,4 +13,9 @@ def wyckoff(spgrp, site, x = 0., y = 0., z = 0., coordinate = 0):
         '4c' : [[.25,.25,.25]],
         '4d' : [[.75,.75,.75]],
     }
+    coords[187] = {
+        '3j' : [[x,-x,0.0],[x,2*x,0.0],[-2*x,-x,0.0]],
+        '3k' : [[x,-x,0.5],[x,2*x,0.5],[-2*x,-x,0.5]],
+        '1c' : [[1./3,2./3,0.0]]
+    }
     return coords[spgrp][site][coordinate]

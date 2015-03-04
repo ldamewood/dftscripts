@@ -6,8 +6,13 @@ from pymatgen.io.vaspio.vasp_output import Vasprun
 from pymatgen.electronic_structure.core import Spin
 
 def main(vasprun = 'vasprun.xml', outfile = 'dos.csv'):
+    print('NOTE: This program will only convert the total or spin polarized DOS.')
     print(u'Reading "%s"' % vasprun)
     run = Vasprun(vasprun)
+    if run.is_spin:
+        print('Extracting spin polarized DOS')
+    else:
+        print('Extracting total DOS')
 
     has_gamma = (numpy.linalg.norm(run.kpoints.kpts,axis=1) < 0.00001).any()
     if not has_gamma:
