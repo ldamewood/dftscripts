@@ -12,10 +12,12 @@ import numpy
 import gzip
 import argparse
 
+
 def _check(filename):
     """ This routine raises an exception when the file cannot be found. """
     if not os.path.isfile(filename):
         raise Exception("%s not found" % filename)
+
 
 def _automatic_kpoints(density, ibz):
     """ Automatic line-mode with specified density and BZ """
@@ -34,25 +36,27 @@ def _automatic_kpoints(density, ibz):
         labels.append(path[-1])
 
     return Kpoints("Line_mode KPOINTS file",
-                    style=Kpoints.supported_modes.Line_mode,
-                    coord_type="Reciprocal",
-                    kpts=kpoints,
-                    labels=labels,
-                    num_kpts=int(density))
+                   style=Kpoints.supported_modes.Line_mode,
+                   coord_type="Reciprocal",
+                   kpts=kpoints,
+                   labels=labels,
+                   num_kpts=int(density))
 
-def _clean_exit(original_path, temp_path, err = 1):
+
+def _clean_exit(original_path, temp_path, err=1):
     """ Cleanly quit in case of error """
     os.chdir(original_path)
     rmtree(temp_path)
     exit(err)
 
+
 def main():
     """ Main routine """
     parser = argparse.ArgumentParser(description='Calculate the band structure of a vasp calculation.')
     parser.add_argument('-d', '--density', nargs='?', default=10, type=int,
-                        help = 'k-point density of the bands (default: 10)')
+                        help='k-point density of the bands (default: 10)')
     parser.add_argument('-s', '--sigma', nargs='?', default=0.04, type=float,
-                        help = 'SIGMA value in eV (default: 0.04)')
+                        help='SIGMA value in eV (default: 0.04)')
     parser.add_argument('-l', '--linemode', nargs='?', default=None, type=str,
                         help='linemode file')
     args = parser.parse_args()
@@ -84,8 +88,8 @@ def main():
     print('  ISMEAR = 0')
     print('  SIGMA = %f' % args.sigma)
     incar[u'ICHARG'] = 11  # Constant density
-    incar[u'ISMEAR'] = 0 # Gaussian Smearing
-    incar[u'SIGMA'] = args.sigma # Smearing temperature
+    incar[u'ISMEAR'] = 0  # Gaussian Smearing
+    incar[u'SIGMA'] = args.sigma  # Smearing temperature
     incar.write_file(os.path.join(tempdir, u'INCAR'))
     # Generate line-mode kpoint file
 
@@ -118,7 +122,7 @@ def main():
     # Read output
     vasprun = Vasprun('vasprun.xml')
     ibz = HighSymmKpath(vasprun.final_structure)
-    kpath, labels = ibz.get_kpoints(line_density)
+    _, _ = ibz.get_kpoints(line_density)
     bands = vasprun.get_band_structure()
     print('Success! Efermi = %f' % bands.efermi)
     
@@ -128,7 +132,7 @@ def main():
     try:
         with gzip.open(zfile, 'wb') as gz, open('vasprun.xml', 'rb') as vr:
             gz.writelines(vr)
-    except Exception:
+    except (OSError, IOError):
         print('There was an error with gzip')
         _clean_exit(path, tempdir)
 
@@ -164,7 +168,7 @@ def main():
         # Write bands to csv file.
         print('Writing bands_%s.csv to disk' % key)
         with open('bands_%s.csv' % key, 'w+') as f:
-            numpy.savetxt(f, numpy.array(final), delimiter = ',', header = ' kptx, kpty, kptz, band1, band2, ... ')
+            numpy.savetxt(f, numpy.array(final), delimiter=',', header=' kptx, kpty, kptz, band1, band2, ... ')
 
     # Delete temporary directory
     _clean_exit(path, tempdir, 0)

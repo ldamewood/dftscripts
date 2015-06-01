@@ -1,34 +1,39 @@
 import numpy
 
+
 __all__ = [
     "interpolate_plane",
 ]
 
+
 # Convert two vectors into a normalzied coordinate system via GS orthogonalization
 def plane_to_cs(cs):
     # Normalize vectors
-    cs[0] = cs[0]/numpy.linalg.norm(cs[0])
-    cs[1] = cs[1]/numpy.linalg.norm(cs[1])
+    cs[0] /= numpy.linalg.norm(cs[0])
+    cs[1] /= numpy.linalg.norm(cs[1])
     # Orthogonalize second vector to first
-    cs[1] = cs[1] - cs[0] * numpy.dot(cs[0],cs[1])
+    cs[1] = cs[1] - cs[0] * numpy.dot(cs[0], cs[1])
     # Return array with third vector orthogonal to other two
-    return numpy.vstack([cs,numpy.cross(cs[0],cs[1])])
+    return numpy.vstack([cs, numpy.cross(cs[0], cs[1])])
+
 
 # Genreate a grid on a 2d plane in 3d space
 def _grid_intersection(plane, res, dim):
     # Create grid
-    x, y, z = numpy.mgrid[0:res[0],0:res[1],0.:1.]
+    x, y, z = numpy.mgrid[0:res[0], 0:res[1], 0.:1.]
     # Center grid
-    x -= numpy.floor(res[0]/2); y -= numpy.floor(res[1]/2)
+    x -= numpy.floor(res[0]/2)
+    y -= numpy.floor(res[1]/2)
     # Scale grid
     x *= 1.*dim[0]/res[0]
     y *= 1.*dim[1]/res[1]
     # List of points in the grid
-    element = numpy.array([x.flatten(),y.flatten(),z.flatten()])
+    element = numpy.array([x.flatten(), y.flatten(), z.flatten()])
     # Generate coordinate system
     cs = plane_to_cs(plane)
     # Rotate points to plane cs
-    return x,y,numpy.dot(element.T,cs)
+    return x, y, numpy.dot(element.T, cs)
+
 
 # Interpolate regularly spaced periodic nd data at an arbitrary point.
 def _pinterpn(datain, rr):
@@ -44,7 +49,7 @@ def _pinterpn(datain, rr):
     rr = numpy.mod(numpy.mod(rr, 1) + 1, 1)
     
     # allocate space for the results
-    data = numpy.zeros((nelem, 1),dtype=datain.dtype);
+    data = numpy.zeros((nelem, 1), dtype=datain.dtype)
 
     # dimmatrix is a nelem list of the grid dimentions.
     # Ex: [[100,100,100],
@@ -64,7 +69,7 @@ def _pinterpn(datain, rr):
     # Check if any upper corners are on the boundary,
     idx = (pr == dimmatrix)
     # and wrap the boundary points back to zero.
-    pr[idx] =- dimmatrix[idx]
+    pr[idx] -= dimmatrix[idx]
     # xr is a vector from the lower corner of a box to the position of
     # the interpolation point.
     xr = numpy.dot(rr, numpy.diag(grid)) - ir
@@ -110,10 +115,11 @@ def _pinterpn(datain, rr):
         data[j] = denval
     return data
 
+
 # Linearlly interpolate 3d periodic data on a plane grid
-def interpolate_plane(datain, cell=[[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]],
-                        plane = [[1.,0.,0.],[0.,0.,1.]], center = [0.5,0.5,0.5],
-                        dim = [1.,1.], res = [100.,100.]):
+def interpolate_plane(datain, cell=((1., 0., 0.), (0., 1., 0.), (0., 0., 1.)),
+                      plane=((1., 0., 0.), (0., 0., 1.)), center=(0.5, 0.5, 0.5),
+                      dim=(1., 1.), res=(100., 100.)):
     # Convert to numpy
     cell = numpy.array(cell)
     center = numpy.array(center)
@@ -122,14 +128,16 @@ def interpolate_plane(datain, cell=[[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]],
     # Define the cell size
     boxsize = max(sum(abs(cell)))
     # Generate grid in Cartesian coordinates
-    x,y,elements = _grid_intersection(plane,res,dim)
+    x, y, elements = _grid_intersection(plane, res, dim)
     # Scale the coordinates to the size of the box
-    x *= boxsize; y *= boxsize; elements *= boxsize
+    x *= boxsize
+    y *= boxsize
+    elements *= boxsize
     # Rotate points to primitive cell coordinates
-    rr = numpy.linalg.solve(cell.T,elements.T)
+    rr = numpy.linalg.solve(cell.T, elements.T)
     # Add the center point to all elements
-    rr += numpy.array([center]).T.repeat(rr.shape[1],1)
+    rr += numpy.array([center]).T.repeat(rr.shape[1], 1)
     # Interpolate the density on the plane
-    dataout = numpy.reshape(_pinterpn(datain,rr.T),res)
+    dataout = numpy.reshape(_pinterpn(datain, rr.T), res)
     # Return x,y,z data
-    return x[:,:,0],y[:,:,0],dataout
+    return x[:, :, 0], y[:, :, 0], dataout
