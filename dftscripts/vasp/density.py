@@ -132,5 +132,5 @@ def main():
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
         fig = plt.figure()
-        plt.contour(x, y, z, colors='k')
+        plt.contour(x, y, z, options['contour'], colors='k')
         fig.savefig(options['out'])
