@@ -59,20 +59,22 @@ def main():
                         help='SIGMA value in eV (default: 0.04)')
     parser.add_argument('-l', '--linemode', nargs='?', default=None, type=str,
                         help='linemode file')
+    parser.add_argument('-v', '--vasp', nargs='?', default='vasp', type=str,
+                        help='vasp executable')
     args = parser.parse_args()
     
     line_density = args.density
     line_file = args.linemode
 
     # Check that required files exist
-    _check(u'vasprun.xml')
-    _check(u'INCAR')
-    _check(u'POSCAR')
-    _check(u'POTCAR')
-    _check(u'CHGCAR')
+    _check('vasprun.xml')
+    _check('INCAR')
+    _check('POSCAR')
+    _check('POTCAR')
+    _check('CHGCAR')
 
     # Get IBZ from vasprun
-    vasprun = Vasprun(u'vasprun.xml')
+    vasprun = Vasprun('vasprun.xml')
     ibz = HighSymmKpath(vasprun.final_structure)
 
     # Create a temp directory
@@ -82,39 +84,39 @@ def main():
 
     # Edit the inputs
     print('Saving new inputs in temporary directory ... ')
-    incar = Incar.from_file(u'INCAR')
+    incar = Incar.from_file('INCAR')
     print('Making the following changes to the INCAR:')
     print('  ICHARG = 11')
     print('  ISMEAR = 0')
     print('  SIGMA = %f' % args.sigma)
-    incar[u'ICHARG'] = 11  # Constant density
-    incar[u'ISMEAR'] = 0  # Gaussian Smearing
-    incar[u'SIGMA'] = args.sigma  # Smearing temperature
-    incar.write_file(os.path.join(tempdir, u'INCAR'))
+    incar['ICHARG'] = 11  # Constant density
+    incar['ISMEAR'] = 0  # Gaussian Smearing
+    incar['SIGMA'] = args.sigma  # Smearing temperature
+    incar.write_file(os.path.join(tempdir, 'INCAR'))
     # Generate line-mode kpoint file
 
     if line_file is None:
         print('Creating a new KPOINTS file:')
         kpoints = _automatic_kpoints(line_density, ibz)
-        kpoints.write_file(os.path.join(tempdir, u'KPOINTS'))
+        kpoints.write_file(os.path.join(tempdir, 'KPOINTS'))
         print('### BEGIN KPOINTS')
         print(kpoints)
         print('### END KPOINTS')
     else:
-        cp(line_file, os.path.join(tempdir, u'KPOINTS'))
+        cp(line_file, os.path.join(tempdir, 'KPOINTS'))
     
     # Copy other files (May take some time...)
     print('Copying POSCAR, POTCAR and CHGCAR to the temporary directory.')
-    cp(u'POSCAR', os.path.join(tempdir, u'POSCAR'))
-    cp(u'POTCAR', os.path.join(tempdir, u'POTCAR'))
-    cp(u'CHGCAR', os.path.join(tempdir, u'CHGCAR'))
+    cp('POSCAR', os.path.join(tempdir, 'POSCAR'))
+    cp('POTCAR', os.path.join(tempdir, 'POTCAR'))
+    cp('CHGCAR', os.path.join(tempdir, 'CHGCAR'))
 
     # cd to temp directory and run vasp
     path = os.getcwd()
     os.chdir(tempdir)
     print('Running VASP in the temporary directory ...')
     try:
-        check_call(u'vasp')
+        check_call(args.vasp)
     except CalledProcessError:
         print('There was an error running VASP')
         _clean_exit(path, tempdir)
