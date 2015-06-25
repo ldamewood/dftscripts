@@ -46,11 +46,15 @@ def _build_parser():
 
     # Output parameters
     group_output = parser.add_argument_group('output')
-    group_output.add_argument('-fmt', '--format', choices=['xyz', 'matrix'], default='xyz',
+    group_output.add_argument('-fmt', '--format', choices=['xyz', 'matrix', 'image'], default='xyz',
                               help='Output format: xyz = columns of x,y,z data, matrix = raw density data '
                                    '(default: xyz)')
     group_output.add_argument('-gz', '--gzip', action='store_true',
                               help='Enables gzip compression of the output (default: disabled)')
+    group_output.add_argument('-o', '--out', nargs='?', type=str, default='density.png',
+                              help='Image output file (default: density.png')
+    group_output.add_argument('-c', '--contour', nargs='?', type=int, default=10,
+                              help='Number of contour lines (default: 10)')
     return parser
 
 
@@ -122,3 +126,11 @@ def main():
     if options['format'] == 'matrix':
         with open('chg_%s_in_plane.mat%s' % (options['spin_channel'], suffix), 'w+') as f:
             numpy.savetxt(f, z, delimiter=' ', header=' Z matrix')
+
+    if options['format'] == 'image':
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        plt.contour(x, y, z, colors='k')
+        fig.savefig(options['out'])

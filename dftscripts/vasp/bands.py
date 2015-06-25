@@ -157,7 +157,7 @@ def main():
         print('Shifting energies so Efermi = 0.')
         band = numpy.array(item) - bands.efermi
 
-        # Prepend kpoint vector as label (TODO: get real label Gamma, etc.)
+        # Prepend kpoint vector as label
         out = numpy.hstack([kpts, band.T])
         
         final = []
