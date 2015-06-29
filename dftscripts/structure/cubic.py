@@ -1,7 +1,7 @@
 import numpy
 
 from pymatgen.core.periodic_table import Element
-from abipy.abilab import Structure
+from pymatgen import Structure
 from .wyckoff import wyckoff
 
 fcc_lattice = [[.0, .5, .5], [.5, .0, .5], [.5, .5, .0]]
