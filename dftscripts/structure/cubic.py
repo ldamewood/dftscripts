@@ -28,11 +28,11 @@ def ZincBlende(elements, a):
 def Heusler(elements, phase, a):
     positions = {
         'alpha': [wyckoff(216, '4c'),
-                  wyckoff(216, '4b'),
                   wyckoff(216, '4a'),
+                  wyckoff(216, '4b'),
                   wyckoff(216, '4d')],
-        'beta': [wyckoff(216, '4b'),
-                 wyckoff(216, '4a'),
+        'beta': [wyckoff(216, '4a'),
+                 wyckoff(216, '4b'),
                  wyckoff(216, '4c'),
                  wyckoff(216, '4d')],
         'gamma': [wyckoff(216, '4a'),
@@ -56,10 +56,10 @@ def Heusler(elements, phase, a):
 def HalfHeusler(elements, phase, a):
     positions = {
         'alpha': [wyckoff(216, '4c'),
-                  wyckoff(216, '4b'),
-                  wyckoff(216, '4a')],
-        'beta': [wyckoff(216, '4b'),
-                 wyckoff(216, '4a'),
+                  wyckoff(216, '4a'),
+                  wyckoff(216, '4b')],
+        'beta': [wyckoff(216, '4a'),
+                 wyckoff(216, '4b'),
                  wyckoff(216, '4c')],
         'gamma': [wyckoff(216, '4a'),
                   wyckoff(216, '4c'),
