@@ -11,11 +11,11 @@ from ..util.interpolate import interpolate_plane, plane_to_cs
 
 def _build_parser():
     # Setup parser
-    parser = argparse.ArgumentParser(prog='plot_chgcar', description='2d projection of CHG')
+    parser = argparse.ArgumentParser(prog='plot_chgcar', description='2d projection of CHGCAR')
 
     # Add options
-    parser.add_argument('filename', type=str, nargs='?', default='CHG',
-                        help='The CHG file (default: CHG)')
+    parser.add_argument('filename', type=str, nargs='?', default='CHGCAR',
+                        help='The CHG file (default: CHGCAR)')
     parser.add_argument('-s', '--spin-channel', choices=['total', 'polarization', 'up', 'down'], default='total',
                         help='For spin polarized calculations, the component of the density (default: total)')
 
