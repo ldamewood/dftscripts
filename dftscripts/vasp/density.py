@@ -35,9 +35,9 @@ def _build_parser():
 
     # Interpolation options
     group_interpolate = parser.add_argument_group('interpolation')
-    group_interpolate.add_argument('-xrep', '--x-repeat', nargs='?', type=int, default=1,
+    group_interpolate.add_argument('-xrep', '--x-repeat', nargs='?', type=float, default=1,
                                    help='Approximate number of repetitions of the cell in the x-direction (default: 1)')
-    group_interpolate.add_argument('-yrep', '--y-repeat', nargs='?', type=int, default=1,
+    group_interpolate.add_argument('-yrep', '--y-repeat', nargs='?', type=float, default=1,
                                    help='Approximate number of repetitions of the cell in the y-direction (default: 1)')
     group_interpolate.add_argument('-xres', '--x-res', nargs='?', type=int, default=100,
                                    help='Resolution of the x-axis (default: 100)')
